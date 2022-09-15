@@ -8,7 +8,7 @@ namespace ParserServer.Parser.Models
                     "time": 5,
                     "travelType": "byCar",
          */
-        public int? Name { get; set; }
+        public string? Name { get; set; }
         public int? Time { get; set; }
         public string? TravelType { get; set; }
     }

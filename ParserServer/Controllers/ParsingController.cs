@@ -36,7 +36,7 @@ namespace ParserServer.Controllers
                 .SetRegion(Region.Moscow)
                 .SetRooms(1, 2, 3)
                 .SortBy(SortBy.FirstNewByDate)
-                .Page(1)
+                .Page(2)
                 .Build();
 
 
@@ -53,11 +53,11 @@ namespace ParserServer.Controllers
             {
                 var phoneNumber = currentOffer.Phones?[0].CountryCode + currentOffer?.Phones?[0].Number;
                 var railways = new StringBuilder();
-                if (currentOffer.Railways != null)
+                if (currentOffer.Geo.Railways != null)
                 {
-                    foreach (var currentOfferRailway in currentOffer.Railways)
+                    foreach (var currentOfferRailway in currentOffer.Geo.Railways)
                     {
-                        railways.Append($"{currentOfferRailway.Name} в {currentOfferRailway.Time} минутах");
+                        railways.Append($"{currentOfferRailway.Name} в {currentOfferRailway.Time} минутах, ");
                     }
                 }
                 else
@@ -72,7 +72,7 @@ namespace ParserServer.Controllers
                 _exportCsv["Метро"] = railways;
                 _exportCsv["Адрес"] = currentOffer.Geo?.UserInput;
                 _exportCsv["Площадь квартиры"] = currentOffer.TotalArea;
-                _exportCsv["Стоимость"] = currentOffer.Price;
+                _exportCsv["Стоимость"] = $"{currentOffer.BargainTerms.Price}₽";
                 _exportCsv["Описание объявления"] = currentOffer.Description;
 
 
@@ -80,7 +80,8 @@ namespace ParserServer.Controllers
                 // $"{currentOffer.FullUrl}, {currentOffer.Title}, +{phoneNumber}, {railways}, {currentOffer.TotalArea}, {currentOffer.Price}, {currentOffer.Description}");
             }
 
-            return File(_exportCsv.ExportToBytes(), "text/csv", "results.csv");
+            return File(Encoding.UTF8.GetBytes(_exportCsv.Export()), "text/csv", "results.csv");
+
             // return File(Encoding.UTF8.GetBytes(builder.ToString()), "text/csv", "flatsinfo.csv");
         }
     }

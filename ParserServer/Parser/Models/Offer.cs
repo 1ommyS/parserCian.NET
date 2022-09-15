@@ -12,9 +12,8 @@ namespace ParserServer.Parser.Models
         
         // public IList<int>? CategoriesIds { get; set; }
         
-        public IList<Railway> Railways { get; set; }
+        public BargainTerms BargainTerms { get; set; }
 
-        public int Price { get; set; }
         
         public string? Description { get; set; }
         
@@ -32,7 +31,7 @@ namespace ParserServer.Parser.Models
         
         // public IList<Photo>? Photos { get; set; }
         
-        public string? Title { get; set; }
+        public string Title { get; set; }
         
         public string? TotalArea { get; set; }
         
@@ -51,5 +50,10 @@ namespace ParserServer.Parser.Models
         public Geo? Geo { get; set; }
         
         // public Building? Building { get; set; }
+    }
+
+    public class BargainTerms
+    {
+        public int? Price { get; set; }
     }
 }
