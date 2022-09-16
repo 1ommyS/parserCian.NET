@@ -1,7 +1,25 @@
+using System.Threading;
+using System.Threading.Tasks;
+using YandexDisk.Client;
+using YandexDisk.Client.Clients;
+using YandexDisk.Client.Http;
+
 namespace ParserServer.Services
 {
-    public class YandexDiskAPIService
+    public class YandexDiskApiService
     {
-        
+        public async void UploadExcelFile()
+        {
+            string oauthToken = "y0_AgAAAABRUuuOAAhrSwAAAADO_oElWhsk-8nRR42yOAmcLPd9XVUDbQM";
+
+            // Create a client instance
+            IDiskApi diskApi = new DiskHttpApi(oauthToken);
+
+            //Upload file from local
+            await diskApi.Files.UploadFileAsync(path: "simple.xlsx",
+                overwrite: true,
+                localFile: "simple.xlsx",
+                cancellationToken: CancellationToken.None);
+        }
     }
 }

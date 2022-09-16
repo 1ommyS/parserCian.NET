@@ -39,7 +39,7 @@ namespace ParserServer.Parser.Models
         
         public IList<Phone>? Phones { get; set; }
         
-        // public int? RoomsCount { get; set; }
+        public int? RoomsCount { get; set; }
         
         // public string? LivingArea { get; set; }
         

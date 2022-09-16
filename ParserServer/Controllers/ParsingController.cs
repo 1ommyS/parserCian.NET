@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using Jitbit.Utils;
+﻿using System.Threading.Tasks;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using ParserServer.Parser;
-using ParserServer.Parser.Models;
-using ParserServer.QueryBuilder;
-using ParserServer.QueryBuilder.Models;
+using ParserServer.Services;
 
 namespace ParserServer.Controllers
 {
@@ -19,70 +11,58 @@ namespace ParserServer.Controllers
     public class ParsingController : ControllerBase
     {
         private readonly ILogger<ParsingController> _logger;
-        private readonly CsvExport _exportCsv;
+        private readonly ParsingService _service;
+        private readonly OfferService _offerService;
 
-        public ParsingController(ILogger<ParsingController> logger)
+        public ParsingController(ILogger<ParsingController> logger, ParsingService service, OfferService offerService)
         {
             _logger = logger;
-            _exportCsv = new CsvExport();
+            _service = service;
+            _offerService = offerService;
         }
-
+        
         [HttpGet]
-        public async Task<FileContentResult> Get()
+        public async Task<string> Get()
         {
-            var cianParser = new HttpCianParser(new HttpClient());
-            string queryFlat = CianQueryBuilderFactory.ForFlat()
-                .SetDealType(DealType.Sale)
-                .SetRegion(Region.Moscow)
-                .SetRooms(1, 2, 3)
-                .SortBy(SortBy.FirstNewByDate)
-                .Page(2)
-                .Build();
-
-
-            var offersOnPage = await cianParser.SetUri(queryFlat).GetOffersOnPage();
-
-            if (offersOnPage == null) return null;
-
-            // var builder = new StringBuilder();
-            // builder.AppendLine(
-            //     "Ссылка, Имя, Номер телефона, метро, адрес, площадь квартиры, стоимость, описание объявления");
-
-
-            foreach (var currentOffer in offersOnPage)
+            var allOffers = await _service.getAllOffers();
+            
+            using (var wbook = new XLWorkbook())
             {
-                var phoneNumber = currentOffer.Phones?[0].CountryCode + currentOffer?.Phones?[0].Number;
-                var railways = new StringBuilder();
-                if (currentOffer.Geo.Railways != null)
+                var ws = wbook.Worksheets.Add("Лист 1");
+                ws.Cell("A1").Value = "Ссылка";
+                ws.Cell("B1").Value = "Имя";
+                ws.Cell("C1").Value = "Номер телефона";
+                ws.Cell("D1").Value = "Метро";
+                ws.Cell("E1").Value = "Адрес";
+                ws.Cell("F1").Value = "Площадь квартиры м²";
+                ws.Cell("G1").Value = "Стоимость";
+                ws.Cell("H1").Value = "Описание объявления";
+
+
+                foreach (var offersOnPage in allOffers)
                 {
-                    foreach (var currentOfferRailway in currentOffer.Geo.Railways)
+                    var offersOnPageCopy = offersOnPage.ToArray();
+                    for (var i = 0; i < offersOnPage.Count; i++)
                     {
-                        railways.Append($"{currentOfferRailway.Name} в {currentOfferRailway.Time} минутах, ");
+                        var currentOffer = offersOnPageCopy[i];
+                        var phoneNumber = currentOffer.Phones?[0].CountryCode + currentOffer?.Phones?[0].Number;
+                        var railways = _offerService.GetRailways(currentOffer);
+
+                        ws.Cell(i + 2, 1).Value = currentOffer.FullUrl;
+                        ws.Cell(i + 2, 2).Value =
+                            $"{currentOffer.RoomsCount}-комн. квартира, {currentOffer.TotalArea}м²";
+                        ws.Cell(i + 2, 3).Value = $"+{phoneNumber}";
+                        ws.Cell(i + 2, 4).Value = railways;
+                        ws.Cell(i + 2, 5).Value = currentOffer.Geo?.UserInput;
+                        ws.Cell(i + 2, 6).Value = currentOffer.TotalArea;
+                        ws.Cell(i + 2, 7).Value = $"{currentOffer.BargainTerms.Price}₽";
+                        ws.Cell(i + 2, 8).Value = currentOffer.Description;
                     }
                 }
-                else
-                {
-                    railways = new StringBuilder("Нет метро рядом");
-                }
 
-                _exportCsv.AddRow();
-                _exportCsv["Ссылка"] = currentOffer.FullUrl;
-                _exportCsv["Имя"] = currentOffer.Title;
-                _exportCsv["Номер телефона"] = $"+{phoneNumber}";
-                _exportCsv["Метро"] = railways;
-                _exportCsv["Адрес"] = currentOffer.Geo?.UserInput;
-                _exportCsv["Площадь квартиры"] = currentOffer.TotalArea;
-                _exportCsv["Стоимость"] = $"{currentOffer.BargainTerms.Price}₽";
-                _exportCsv["Описание объявления"] = currentOffer.Description;
-
-
-                // builder.AppendLine(
-                // $"{currentOffer.FullUrl}, {currentOffer.Title}, +{phoneNumber}, {railways}, {currentOffer.TotalArea}, {currentOffer.Price}, {currentOffer.Description}");
+                wbook.SaveAs("simple.xlsx");
             }
-
-            return File(Encoding.UTF8.GetBytes(_exportCsv.Export()), "text/csv", "results.csv");
-
-            // return File(Encoding.UTF8.GetBytes(builder.ToString()), "text/csv", "flatsinfo.csv");
+            return "Файл загружен на облако";
         }
     }
 }
