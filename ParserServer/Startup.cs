@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ParserServer.Factory;
+using ParserServer.Jobs;
 
 namespace ParserServer
 {
@@ -22,10 +24,11 @@ namespace ParserServer
         {
             services.AddControllersWithViews();
 
+            services.AddTransient<JobFactory>();
+            services.AddScoped<ParsingJob>();
+
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
-            
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

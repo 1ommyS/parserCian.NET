@@ -28,5 +28,7 @@ namespace ParserServer.Services
             return new List<List<Offer>>()
                 {offersOnFirstPage, offersOnSecondPage, offersOnThirdPage, offersOnFourthPage, offersOnFivePage};
         }
+        
+        
     }
 }
