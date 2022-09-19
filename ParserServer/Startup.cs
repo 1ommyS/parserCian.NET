@@ -7,6 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ParserServer.Factory;
 using ParserServer.Jobs;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
 
 namespace ParserServer
 {
@@ -24,10 +27,13 @@ namespace ParserServer
         {
             services.AddControllersWithViews();
 
-            services.AddTransient<JobFactory>();
-            services.AddScoped<ParsingJob>();
+            services.AddHostedService<QuartzHostedService>();
+            services.AddSingleton<IJobFactory, SingletonJobFactory>();
+            services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 
-            // In production, the React files will be served from this directory
+            services.AddSingleton<JobReminders>();
+            services.AddSingleton(new MyJob(type: typeof(JobReminders), expression: "0 0/30 * 1/1 * ? *"));
+
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
         }
 

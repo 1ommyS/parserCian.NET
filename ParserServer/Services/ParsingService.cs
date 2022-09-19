@@ -10,12 +10,12 @@ namespace ParserServer.Services
 {
     public class ParsingService
     {
-        public async Task<List<List<Offer>>> getAllOffers()
+        public async Task<List<List<Offer>>> getAllOffers(Region region)
         {
             var cianParser = new HttpCianParser(new HttpClient());
             var queryFlat = CianQueryBuilderFactory.ForFlat()
                 .SetDealType(DealType.Sale)
-                .SetRegion(Region.Moscow)
+                .SetRegion(region)
                 .SetRooms(1, 2, 3)
                 .SortBy(SortBy.FirstNewByDate);
 
@@ -28,7 +28,5 @@ namespace ParserServer.Services
             return new List<List<Offer>>()
                 {offersOnFirstPage, offersOnSecondPage, offersOnThirdPage, offersOnFourthPage, offersOnFivePage};
         }
-        
-        
     }
 }

@@ -16,18 +16,18 @@ namespace ParserServer
         public static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
-            using (var scope = host.Services.CreateScope())
-            {
-                var serviceProvider = scope.ServiceProvider;
-                try
-                {
-                    ParsingScheduler.Start(serviceProvider);
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-            }
+            // using (var scope = host.Services.CreateScope())
+            // {
+            //     var serviceProvider = scope.ServiceProvider;
+            //     try
+            //     {
+            //         ParsingScheduler.Start(serviceProvider);
+            //     }
+            //     catch (Exception)
+            //     {
+            //         throw;
+            //     }
+            // }
 
             host.Run();
         }

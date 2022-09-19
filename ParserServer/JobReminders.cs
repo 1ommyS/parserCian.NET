@@ -1,32 +1,24 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using ClosedXML.Excel;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using ParserServer.QueryBuilder.Models;
 using ParserServer.Services;
+using Quartz;
 
-namespace ParserServer.Controllers
+namespace ParserServer
 {
-    [ApiController]
-    [Route("/parsing")]
-    public class ParsingController : ControllerBase
+    public class JobReminders : IJob
     {
-        private readonly ILogger<ParsingController> _logger;
-        private readonly ParsingService _service;
-        private readonly OfferService _offerService;
-
-        public ParsingController(ILogger<ParsingController> logger)
+        public JobReminders()
         {
-            _logger = logger;
-            _service = new ParsingService();
-            _offerService = new OfferService();
         }
 
-        [HttpGet]
-        public async Task<LocalRedirectResult> Get(Region region)
+        public async Task Execute(IJobExecutionContext context)
         {
-            var allOffers = await _service.getAllOffers(region);
+            var _service = new ParsingService();
+            var _offerService = new OfferService();
+
+            var allOffers = await _service.getAllOffers(Region.Bryansk);
 
             using (var wbook = new XLWorkbook())
             {
@@ -62,11 +54,10 @@ namespace ParserServer.Controllers
                     }
                 }
 
+
                 var uid = DateTime.Now.ToString("ddMMyyyy-HHmmss");
                 wbook.SaveAs($"{uid}.xlsx");
             }
-    
-            return LocalRedirect("/");
         }
     }
 }

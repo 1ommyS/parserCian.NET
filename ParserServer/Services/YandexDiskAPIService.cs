@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using YandexDisk.Client;
@@ -8,7 +9,7 @@ namespace ParserServer.Services
 {
     public class YandexDiskApiService
     {
-        public async void UploadExcelFile()
+        public async void UploadExcelFile(string uid)
         {
             string oauthToken = "y0_AgAAAABRUuuOAAhrSwAAAADO_oElWhsk-8nRR42yOAmcLPd9XVUDbQM";
 
