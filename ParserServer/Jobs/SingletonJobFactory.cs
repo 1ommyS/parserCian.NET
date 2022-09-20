@@ -7,21 +7,20 @@ namespace ParserServer.Jobs
 {
     public class SingletonJobFactory : IJobFactory
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceProvider Container;
 
         public SingletonJobFactory(IServiceProvider serviceProvider)
         {
-            _serviceProvider = serviceProvider;
+            Container = serviceProvider;
         }
 
         public IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler)
         {
-            return _serviceProvider.GetRequiredService(bundle.JobDetail.GetType()) as IJob;
+            return Container.GetService(bundle.JobDetail.JobType) as IJob;
         }
 
         public void ReturnJob(IJob job)
         {
-            
         }
     }
 }

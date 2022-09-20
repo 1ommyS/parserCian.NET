@@ -17,9 +17,9 @@ namespace ParserServer.Services
             IDiskApi diskApi = new DiskHttpApi(oauthToken);
 
             //Upload file from local
-            await diskApi.Files.UploadFileAsync(path: "simple.xlsx",
+            await diskApi.Files.UploadFileAsync(path: $"{uid}.xlsx",
                 overwrite: true,
-                localFile: "simple.xlsx",
+                localFile: $"{uid}.xlsx",
                 cancellationToken: CancellationToken.None);
         }
     }

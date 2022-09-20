@@ -28,13 +28,13 @@ namespace ParserServer
             Scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
             Scheduler.JobFactory = _jobFactory;
 
-            foreach (var myJob in _jobs)
-            {
-                var job = CreateJob(myJob);
-                var trigger = CreateTrigger(myJob);
-
-                await Scheduler.ScheduleJob(job, trigger, cancellationToken);
-            }
+            // foreach (var myJob in _jobs)
+            // {
+            //     var job = CreateJob(myJob);
+            //     var trigger = CreateTrigger(myJob);
+            //
+            //     await Scheduler.ScheduleJob(job, trigger, cancellationToken);
+            // }
 
             await Scheduler.Start(cancellationToken);
         }

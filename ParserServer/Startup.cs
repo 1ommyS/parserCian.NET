@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ParserServer.Factory;
 using ParserServer.Jobs;
+using ParserServer.Services;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
@@ -28,11 +27,17 @@ namespace ParserServer
             services.AddControllersWithViews();
 
             services.AddHostedService<QuartzHostedService>();
+            services.AddSingleton<ParsingService>();
+            services.AddSingleton<OfferService>();
             services.AddSingleton<IJobFactory, SingletonJobFactory>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 
-            services.AddSingleton<JobReminders>();
-            services.AddSingleton(new MyJob(type: typeof(JobReminders), expression: "0 0/30 * 1/1 * ? *"));
+            services.AddSwaggerGen(options => options.SwaggerDoc("v1",
+                new Microsoft.OpenApi.Models.OpenApiInfo {Title = "Parser API", Version = "v1"}));
+
+            services.AddSingleton<OwnJob>();
+            // services.AddSingleton(new MyJob(type: typeof(OwnJob), expression: "0 0/30 * 1/1 * ? *"));
+            services.AddQuartz(q => services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true));
 
             services.AddSpaStaticFiles(configuration => { configuration.RootPath = "ClientApp/build"; });
         }
@@ -51,6 +56,8 @@ namespace ParserServer
                 app.UseHsts();
             }
 
+            app.UseSwagger();
+            app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "ParserServer"));
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();

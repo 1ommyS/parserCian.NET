@@ -7,19 +7,27 @@ using Quartz;
 
 namespace ParserServer
 {
-    public class JobReminders : IJob
+    public class OwnJob : IJob
     {
-        public JobReminders()
+        //todo: set breckpoints and check
+        private readonly ParsingService _service;
+        private readonly OfferService _offerService;
+
+        public OwnJob(ParsingService parsingService, OfferService offerService)
         {
+            _service = parsingService;
+            _offerService = offerService;
         }
 
         public async Task Execute(IJobExecutionContext context)
         {
-            var _service = new ParsingService();
-            var _offerService = new OfferService();
+            await Parse(Region.Bryansk);
+            await Parse(Region.Moscow);
+        }
 
-            var allOffers = await _service.getAllOffers(Region.Bryansk);
-
+        private async Task Parse(Region region)
+        {
+            var allOffers = await _service.getAllOffers(region);
             using (var wbook = new XLWorkbook())
             {
                 var ws = wbook.Worksheets.Add("Лист 1");
@@ -53,7 +61,6 @@ namespace ParserServer
                         ws.Cell(i + 2, 8).Value = currentOffer.Description;
                     }
                 }
-
 
                 var uid = DateTime.Now.ToString("ddMMyyyy-HHmmss");
                 wbook.SaveAs($"{uid}.xlsx");
