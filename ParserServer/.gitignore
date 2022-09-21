@@ -17,10 +17,6 @@
 [Rr]eleases/
 x64/
 x86/
-build/
-bld/
-bin/
-Bin/
 obj/
 Obj/
 
@@ -41,6 +37,7 @@ TestResult.xml
 [Rr]eleasePS/
 dlldata.c
 
+*.xlsx
 *_i.c
 *_p.c
 *_i.h
