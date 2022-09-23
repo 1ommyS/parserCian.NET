@@ -64,6 +64,8 @@ namespace ParserServer
 
                 var uid = DateTime.Now.ToString("ddMMyyyy-HHmmss");
                 wbook.SaveAs($"{uid}.xlsx");
+                
+                new YandexDiskApiService().UploadExcelFile(uid);
             }
         }
     }

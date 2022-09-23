@@ -11,7 +11,7 @@ namespace ParserServer.Services
     {
         public async void UploadExcelFile(string uid)
         {
-            string oauthToken = "y0_AgAAAABRUuuOAAhrSwAAAADO_oElWhsk-8nRR42yOAmcLPd9XVUDbQM";
+            string oauthToken = "y0_AgAAAABktLU_AAhvAgAAAADPiyLfCRhNnQXCQs28_yW-aTo9RFs90Vg";
 
             // Create a client instance
             IDiskApi diskApi = new DiskHttpApi(oauthToken);
