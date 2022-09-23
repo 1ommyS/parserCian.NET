@@ -32,7 +32,7 @@ namespace ParserServer
         {
             services.AddControllersWithViews();
 
-            var wwwRootPath = Path.GetFullPath("../ClientApp/build", _env.ContentRootPath);
+            var wwwRootPath = Path.GetFullPath("ClientApp/build", _env.ContentRootPath);
             _env.WebRootPath = wwwRootPath;
             _env.WebRootFileProvider = new PhysicalFileProvider(wwwRootPath);
 
@@ -66,6 +66,11 @@ namespace ParserServer
                 app.UseHsts();
             }
 
+            app.UseSwagger();
+            app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "ParserServer"));
+
+            app.UseHttpsRedirection();
+
             app.Use(async (context, next) =>
             {
                 if (context.Request.Path == "/index.html" && context.Request.Method == "POST")
@@ -75,6 +80,7 @@ namespace ParserServer
 
                 await next();
             });
+
             app.UseDefaultFiles(); // Serve index.html for route "/"
 
             var staticFileOptions = new StaticFileOptions
@@ -82,15 +88,23 @@ namespace ParserServer
                 FileProvider = _env.WebRootFileProvider,
                 ServeUnknownFileTypes = true
             };
+            // app.UseStaticFiles(staticFileOptions);
             app.UseSpaStaticFiles(staticFileOptions);
 
-            app.UseSwagger();
-            app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "ParserServer"));
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseSpaStaticFiles();
+            // app.UseMiddleware<IspValidatorMiddleware>();
 
             app.UseRouting();
+
+            app.UseCors(builder => builder
+                .WithOrigins(
+                    "http://localhost",
+                    "http://localhost:4200",
+                    "https://localhost",
+                    "https://localhost:4200")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials()
+            );
 
             app.UseEndpoints(endpoints =>
             {
@@ -101,12 +115,13 @@ namespace ParserServer
 
             app.UseSpa(spa =>
             {
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
-                {
-                    spa.UseReactDevelopmentServer(npmScript: "start");
-                }
+                spa.Options.DefaultPageStaticFileOptions = staticFileOptions;
+                // spa.Options.SourcePath = "ClientApp";
+                //
+                // if (env.IsDevelopment())
+                // {
+                //     spa.UseReactDevelopmentServer(npmScript: "start");
+                // }
             });
         }
     }
